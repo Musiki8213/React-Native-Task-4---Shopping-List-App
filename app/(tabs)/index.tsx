@@ -1,10 +1,8 @@
-import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store';
-import { deleteList, toggleItemPurchased } from '../../store/shoppingListSlice';
 
 const categories = [
   { name: 'Groceries', image: require('../../assets/images/groceries.png') },
@@ -23,7 +21,6 @@ export default function HomeScreen() {
   const shoppingLists = useSelector((state: RootState) => state.shopping.lists);
 
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [expandedListId, setExpandedListId] = useState<number | null>(null);
 
   const handleCategoryPress = (categoryName: string) => {
     setSelectedCategory(categoryName);
@@ -37,32 +34,8 @@ export default function HomeScreen() {
     router.push(`/add-list?category=${encodeURIComponent(selectedCategory)}`);
   };
 
-  const handleTogglePurchased = (listId: number, itemId: number) => {
-    dispatch(toggleItemPurchased({ listId, itemId }));
-  };
-
-  const handleDeleteList = (listId: number) => {
-    Alert.alert(
-      'Delete List',
-      'Are you sure you want to delete this list?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => {
-            dispatch(deleteList(listId));
-            if (expandedListId === listId) {
-              setExpandedListId(null);
-            }
-          },
-        },
-      ]
-    );
-  };
-
   const handleListPress = (listId: number) => {
-    setExpandedListId(expandedListId === listId ? null : listId);
+    router.push(`/modal?listId=${listId}`);
   };
 
   // Check if all items in a list are purchased
@@ -101,76 +74,37 @@ export default function HomeScreen() {
       {/* Shopping Lists */}
       <Text style={[styles.sectionTitle, { marginTop: 0, marginBottom: 0 }]}>Shopping Lists</Text>
       <ScrollView style={styles.listContainer} contentContainerStyle={styles.listContentContainer}>
-        {shoppingLists.map(list => {
+        {[...shoppingLists].reverse().map(list => {
           const allItemsChecked = isListComplete(list);
-          const isExpanded = expandedListId === list.id;
           return (
-            <View key={list.id} style={styles.listCard}>
-              <TouchableOpacity
-                onPress={() => handleListPress(list.id)}
-                activeOpacity={0.7}
-                style={styles.listCardHeader}
-              >
-                <View style={styles.listCardContent}>
-                  <View style={styles.listCardTextContainer}>
-                    <Text
-                      style={[
-                        styles.listName,
-                        allItemsChecked && styles.listNameStrikethrough,
-                      ]}
-                    >
-                      {list.name}
-                    </Text>
-                    <Text style={styles.listCategory}>{list.category}</Text>
-                  </View>
-                  <Image
-                    source={
-                      allItemsChecked
-                        ? require('../../assets/images/check.png')
-                        : require('../../assets/images/circle.png')
-                    }
-                    style={styles.listCheckbox}
-                  />
-                </View>
-              </TouchableOpacity>
-
-              {isExpanded && (
-                <View style={styles.expandedContent}>
-                  {list.items.map(item => (
-                    <TouchableOpacity
-                      key={item.id}
-                      onPress={() => handleTogglePurchased(list.id, item.id)}
-                      style={styles.listItem}
-                      activeOpacity={0.7}
-                    >
-                      <Text
-                        style={[
-                          styles.itemText,
-                          item.purchased && styles.itemTextStrikethrough,
-                        ]}
-                      >
-                        {item.name} x{item.quantity}
-                      </Text>
-                      <Image
-                        source={
-                          item.purchased
-                            ? require('../../assets/images/check.png')
-                            : require('../../assets/images/circle.png')
-                        }
-                        style={styles.itemCheckbox}
-                      />
-                    </TouchableOpacity>
-                  ))}
-                  <Pressable
-                    onPress={() => handleDeleteList(list.id)}
-                    style={styles.deleteButton}
+            <TouchableOpacity
+              key={list.id}
+              onPress={() => handleListPress(list.id)}
+              activeOpacity={0.7}
+              style={styles.listCard}
+            >
+              <View style={styles.listCardContent}>
+                <View style={styles.listCardTextContainer}>
+                  <Text
+                    style={[
+                      styles.listName,
+                      allItemsChecked && styles.listNameStrikethrough,
+                    ]}
                   >
-                    <Ionicons name="trash-outline" size={20} color="#FF0000" />
-                    <Text style={styles.deleteButtonText}>Delete List</Text>
-                  </Pressable>
+                    {list.name}
+                  </Text>
+                  <Text style={styles.listCategory}>{list.category}</Text>
                 </View>
-              )}
-            </View>
+                <Image
+                  source={
+                    allItemsChecked
+                      ? require('../../assets/images/check.png')
+                      : require('../../assets/images/circle.png')
+                  }
+                  style={styles.listCheckbox}
+                />
+              </View>
+            </TouchableOpacity>
           );
         })}
       </ScrollView>
@@ -261,6 +195,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     marginBottom: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
     borderWidth: 1,
     borderColor: '#E6E7E7',
     shadowColor: '#000000',
@@ -268,23 +204,11 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowRadius: 2,
     elevation: 2,
-    overflow: 'hidden',
-  },
-  listCardHeader: {
-    paddingVertical: 16,
-    paddingHorizontal: 16,
   },
   listCardContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  expandedContent: {
-    paddingTop: 8,
-    paddingBottom: 16,
-    paddingHorizontal: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#E6E7E7',
   },
   listCardTextContainer: {
     flex: 1,
@@ -323,48 +247,5 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
-  },
-  listItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    marginBottom: 8,
-    backgroundColor: '#F9F9F9',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E6E7E7',
-  },
-  itemText: {
-    fontSize: 16,
-    color: '#000000',
-    fontWeight: '400',
-  },
-  itemTextStrikethrough: {
-    textDecorationLine: 'line-through',
-    color: '#666666',
-  },
-  itemCheckbox: {
-    width: 24,
-    height: 24,
-    resizeMode: 'contain',
-  },
-  deleteButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 12,
-    paddingVertical: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#FF0000',
-    backgroundColor: '#FFFFFF',
-  },
-  deleteButtonText: {
-    color: '#FF0000',
-    fontSize: 16,
-    fontWeight: '500',
-    marginLeft: 8,
   },
 });
