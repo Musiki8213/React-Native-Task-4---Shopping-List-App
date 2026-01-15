@@ -50,8 +50,11 @@ const shoppingListSlice = createSlice({
       if (!list) return;
       list.items = list.items.filter(i => i.id !== action.payload.itemId);
     },
+    deleteList: (state, action: PayloadAction<number>) => {
+      state.lists = state.lists.filter(l => l.id !== action.payload);
+    },
   },
 });
 
-export const { addList, toggleItemPurchased, editItem, deleteItem } = shoppingListSlice.actions;
+export const { addList, toggleItemPurchased, editItem, deleteItem, deleteList } = shoppingListSlice.actions;
 export default shoppingListSlice.reducer;
