@@ -1,181 +1,213 @@
-# Task 4 - React Native Shopping List App
+# Basketly - Smart Shopping Companion
 
-**Topic:** React Native  
-**Submission Date:** 15 Jan 2026, 09:00
+A modern, clean React Native shopping list application built with Expo. Organize your shopping with categorized lists, track items with quantities, and mark purchases as you shop.
 
-## Project Overview
+## 📱 Features
 
-This is a React Native shopping list application built with Expo. The app allows users to create, manage, and organize shopping lists categorized by different types (e.g., Groceries, Pantry, Dairy & Eggs, etc.). Users can add items with quantities, mark them as purchased, and edit or delete items from their lists.
+### Home Screen
+- **Category Selection**: Browse and select from 7 categories (Groceries, Pantry Staples, Dairy & Eggs, Personal Care, Baby & Kids, Electronics, Other Items)
+- **Shopping Lists Display**: View all your shopping lists with:
+  - List name and category
+  - Visual completion indicator (checkbox)
+  - Line-through styling when all items are purchased
+- **Expandable Lists**: Tap any list to expand and view/manage items
+- **Item Management**: Mark items as purchased/unpurchased directly from the home screen
+- **List Deletion**: Delete entire lists with confirmation dialog
 
-**Submission Form:** [https://forms.gle/wV3ZD627QQuiwJAo7](https://forms.gle/wV3ZD627QQuiwJAo7)
+### Add List Screen
+- **List Creation**: Create new shopping lists with custom names
+- **Category Assignment**: Assign lists to categories
+- **Item Management**:
+  - Add items with custom quantities
+  - Quantity selector with +/- controls
+  - Edit or delete items using the ellipsis menu
+  - Mark items as purchased in preview
+- **Form Validation**: Ensures list name, category, and at least one item before saving
 
-## Features
+## 🛠️ Tech Stack
 
-### Current Implementation
+- **Framework**: React Native with Expo (~54.0.31)
+- **State Management**: Redux Toolkit (@reduxjs/toolkit)
+- **Navigation**: Expo Router (file-based routing)
+- **Icons**: Expo Vector Icons (@expo/vector-icons)
+- **Language**: TypeScript
+- **Styling**: React Native StyleSheet API
 
-- **User Interface:**
-
-  - Clean, user-friendly interface for displaying shopping lists.
-  - Horizontal scrollable categories with icons (Groceries, Pantry, Dairy & Eggs, Personal Care, Baby & Kids, Electronics, Other Items).
-  - Sample shopping list with items categorized and checkboxes to mark as purchased.
-  - Add List screen for creating new shopping lists with custom items and quantities.
-
-- **Shopping List Features:**
-
-  - Display list of shopping items with checkboxes to mark as purchased.
-  - Add new items to a list with name and quantity.
-  - Edit and delete items from the list.
-  - Visual feedback for purchased items (strikethrough text and checkmark icon).
-
-- **Navigation:**
-  - File-based routing using Expo Router.
-  - Tab-based navigation structure.
-
-### Planned Features (Per Technical Requirements)
-
-- **Redux Setup:**
-
-  - Integrate Redux for state management.
-  - Define actions for adding, editing, and deleting items.
-  - Create reducers to handle state updates.
-
-- **Persistence:**
-
-  - Implement local storage or database to save shopping list data between sessions.
-  - Load saved data on app reopen.
-
-- **User Feedback:**
-
-  - Enhanced visual feedback for all CRUD operations.
-  - Error handling and messages for invalid inputs.
-
-- **Accessibility (Optional):**
-
-  - Implement accessibility best practices with appropriate labels and ARIA attributes.
-
-- **Testing:**
-  - Unit and integration tests for Redux actions and reducers.
-
-## Technical Requirements
-
-- **Framework:** React Native with Expo
-- **State Management:** Redux (planned)
-- **Persistence:** Local storage/database (planned)
-- **UI Components:** Custom styled components with React Native elements
-- **Navigation:** Expo Router
-- **Icons:** Expo Vector Icons and custom images
-- **Styling:** StyleSheet API
-
-## Getting Started
+## 📦 Installation
 
 ### Prerequisites
 
 - Node.js (v14 or later)
 - npm or yarn
-- Expo CLI
-- Android Studio (for Android emulator) or Xcode (for iOS simulator)
+- Expo CLI (installed globally or via npx)
+- For iOS: Xcode (Mac only)
+- For Android: Android Studio
 
-### Installation
+### Setup
 
 1. **Clone the repository:**
-
    ```bash
    git clone <repository-url>
-   cd Task4-ShoppingList-React-Native
+   cd React-Native-Task-4---Shopping-List-App
    ```
 
 2. **Install dependencies:**
-
    ```bash
    npm install
    ```
 
 3. **Start the development server:**
-
    ```bash
+   npm start
+   # or
    npx expo start
    ```
 
-4. **Run on device/emulator:**
-   - For Android: `npm run android`
-   - For iOS: `npm run ios`
-   - For Web: `npm run web`
-   - Or scan the QR code with Expo Go app
+4. **Run on your preferred platform:**
+   - **iOS**: `npm run ios` (requires Mac with Xcode)
+   - **Android**: `npm run android` (requires Android Studio setup)
+   - **Web**: `npm run web`
+   - **Expo Go**: Scan the QR code with the Expo Go app on your device
 
-### Project Structure
+## 📁 Project Structure
 
 ```
-Task4-ShoppingList-React-Native/
-├── app/                    # Main app directory (file-based routing)
-│   ├── _layout.tsx         # Root layout
-│   ├── (tabs)/             # Tab navigation
-│   │   └── index.tsx       # Home screen
-│   ├── add-list.tsx        # Add new list screen
-│   └── modal.tsx           # Modal component
-├── assets/                 # Images and assets
-│   └── images/             # Category icons and checkboxes
-├── components/             # Reusable components
-├── constants/              # App constants (theme, etc.)
-├── hooks/                  # Custom hooks
-└── scripts/                # Utility scripts
+React-Native-Task-4---Shopping-List-App/
+├── app/                          # Expo Router file-based routing
+│   ├── _layout.tsx              # Root layout configuration
+│   ├── (tabs)/                   # Tab navigation group
+│   │   ├── _layout.tsx          # Tab layout
+│   │   ├── index.tsx            # Home screen (main)
+│   │   └── explore.tsx          # Explore tab
+│   ├── add-list.tsx             # Add/Edit list screen
+│   └── modal.tsx                # Modal component
+├── assets/                       # Static assets
+│   └── images/                  # Category icons, checkboxes
+│       ├── groceries.png
+│       ├── pantry.png
+│       ├── dairy.png
+│       ├── personal.png
+│       ├── baby.png
+│       ├── electronics.png
+│       ├── other.png
+│       ├── check.png
+│       └── circle.png
+├── components/                   # Reusable UI components
+│   ├── ui/                      # UI components
+│   ├── themed-text.tsx
+│   └── themed-view.tsx
+├── constants/                    # App constants
+│   └── theme.ts                 # Theme configuration
+├── hooks/                        # Custom React hooks
+│   ├── use-color-scheme.ts
+│   └── use-theme-color.ts
+├── store/                        # Redux store
+│   ├── index.ts                 # Store configuration
+│   └── shoppingListSlice.ts    # Shopping list Redux slice
+├── scripts/                      # Utility scripts
+│   └── reset-project.js
+├── app.json                      # Expo configuration
+├── package.json                  # Dependencies and scripts
+└── tsconfig.json                 # TypeScript configuration
 ```
 
-## Usage Guide
+## 🎯 Usage Guide
 
-### Home Screen
+### Creating a Shopping List
 
-- View available categories in a horizontal scroll.
-- See a sample shopping list with items and their categories.
-- Tap on a category to select it (required before adding a new list).
-- Tap on list items to mark/unmark as purchased.
-- Press "Add List" to create a new shopping list (category must be selected).
+1. **Select a Category**: On the home screen, tap one of the category cards (Groceries, Pantry Staples, etc.)
+2. **Tap "New List"**: The button at the bottom of the screen
+3. **Fill in Details**:
+   - Enter a name for your list (e.g., "Weekly Groceries")
+   - Category is pre-filled but can be edited
+   - Add items with quantities using the quantity selector
+4. **Add Items**: 
+   - Type item name
+   - Adjust quantity with +/- buttons
+   - Tap the "+" button to add the item
+5. **Review**: Items appear in the preview section below
+6. **Save**: Tap "Add List" at the bottom to save
 
-### Adding a New List
+### Managing Lists
 
-- Enter a list name (required).
-- Category is pre-filled from selection, but can be edited.
-- Add items by entering name and adjusting quantity.
-- Tap "Add" to add items to the list.
-- Edit or delete items using the ellipsis menu.
-- Mark items as purchased in the preview.
-- Press "Add List" to save (list name and at least one item required).
+- **View Items**: Tap any list card on the home screen to expand and see all items
+- **Mark as Purchased**: Tap an item in the expanded list to toggle its purchased status
+- **Delete List**: When a list is expanded, tap "Delete List" button (with confirmation)
+- **Visual Feedback**: 
+  - Completed items show with strikethrough text
+  - Lists with all items purchased show a checkmark and strikethrough on the list name
 
-## Development Notes
+### Editing Items (Add List Screen)
 
-- **Current State:** The app currently uses local state management. Redux integration and persistence are planned for future implementation.
-- **Styling:** Uses React Native's StyleSheet for consistent theming.
-- **Icons:** Custom PNG images for categories and checkboxes.
-- **Navigation:** Expo Router handles routing between screens.
+- **Edit**: Tap the ellipsis (⋮) next to an item, then "Edit"
+- **Delete**: Tap the ellipsis (⋮) next to an item, then "Delete"
+- **Mark Purchased**: Tap the checkbox icon next to an item
 
-## Scripts
+## 🔧 Redux State Management
 
-- `npm start` - Start the Expo development server
-- `npm run android` - Run on Android emulator
-- `npm run ios` - Run on iOS simulator
-- `npm run web` - Run on web browser
+The app uses Redux Toolkit for state management. The shopping list state includes:
+
+### State Structure
+```typescript
+interface ShoppingState {
+  lists: ShoppingList[];
+}
+
+interface ShoppingList {
+  id: number;
+  name: string;
+  category: string;
+  items: Item[];
+}
+
+interface Item {
+  id: number;
+  name: string;
+  quantity: number;
+  purchased: boolean;
+}
+```
+
+### Available Actions
+- `addList`: Add a new shopping list
+- `toggleItemPurchased`: Toggle purchased status of an item
+- `editItem`: Edit item name and quantity
+- `deleteItem`: Delete an item from a list
+- `deleteList`: Delete an entire shopping list
+
+## 🎨 Design
+
+- **Theme**: Clean, minimal design with white background and black text
+- **Colors**: 
+  - Primary: Black (#000000)
+  - Background: White (#FFFFFF)
+  - Accent: Blue (#5085CF) for selected categories
+  - Error: Red (#FF0000) for delete actions
+- **Typography**: System fonts with varying weights
+- **Spacing**: Consistent padding and margins throughout
+
+## 📝 Available Scripts
+
+- `npm start` - Start Expo development server
+- `npm run android` - Run on Android emulator/device
+- `npm run ios` - Run on iOS simulator/device
+- `npm run web` - Run in web browser
 - `npm run lint` - Run ESLint for code quality
-- `npm run reset-project` - Reset to a fresh Expo project
+- `npm run reset-project` - Reset to a fresh Expo project template
 
-## Contributing
+## 🚀 Development
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+### Code Style
+- TypeScript for type safety
+- ESLint for code quality
+- Consistent component structure
+- Redux Toolkit for state management
 
-## Testing
+### Key Components
+- **HomeScreen** (`app/(tabs)/index.tsx`): Main screen with categories and lists
+- **AddListScreen** (`app/add-list.tsx`): Form for creating new lists
+- **ShoppingListSlice** (`store/shoppingListSlice.ts`): Redux slice for state management
 
-- Manual testing on multiple platforms (iOS, Android, Web)
-- Planned: Unit tests for components and Redux logic
-- Planned: Integration tests for state management
 
-## License
 
-This project is for educational purposes as part of Task 4 submission.
-
-## Learn More
-
-- [Expo Documentation](https://docs.expo.dev/)
-- [React Native Documentation](https://reactnative.dev/docs/getting-started)
-- [Redux Documentation](https://redux.js.org/) (for planned state management)
+**Note**: This app uses Redux for state management. All shopping list data is stored in memory and will be lost when the app is closed. For production use, consider adding data persistence with AsyncStorage or a database solution.
