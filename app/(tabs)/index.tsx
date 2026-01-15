@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { ScrollView, View, Text, StyleSheet, Image, TouchableOpacity, Pressable } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, Image, TouchableOpacity, Pressable, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../store';
+import { toggleItemPurchased } from '../../store/shoppingListSlice';
 
 const categories = [
   { name: 'Groceries', image: require('../../assets/images/groceries.png') },
@@ -14,32 +17,26 @@ const categories = [
 
 export default function HomeScreen() {
   const router = useRouter();
+  const dispatch = useDispatch();
 
-  const [shoppingList, setShoppingList] = useState([
-    { id: 1, name: 'Dairy Refill', purchased: false, category: 'Dairy & Eggs' },
-    { id: 2, name: 'For Cake', purchased: false, category: 'Dairy & Eggs' },
-    { id: 3, name: 'Weekly Grocery', purchased: false, category: 'Groceries' },
-    { id: 4, name: 'Diapers & Bottle', purchased: false, category: 'Baby & Kids' },
-    { id: 5, name: 'Toothpaste', purchased: false, category: 'Personal Care' },
-    { id: 6, name: 'Shampoo', purchased: false, category: 'Personal Care' },
-    { id: 7, name: 'Weekly Grocery', purchased: false, category: 'Groceries' },
-    { id: 8, name: 'Diapers & Bottle', purchased: false, category: 'Baby & Kids' },
-  ]);
+  const shoppingLists = useSelector((state: RootState) => state.shopping.lists);
 
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [showCategoryWarning, setShowCategoryWarning] = useState(false);
 
   const handleCategoryPress = (categoryName: string) => {
     setSelectedCategory(categoryName);
-    setShowCategoryWarning(false);
   };
 
-  const togglePurchased = (id: number) => {
-    setShoppingList(prev =>
-      prev.map(item =>
-        item.id === id ? { ...item, purchased: !item.purchased } : item
-      )
-    );
+  const handleAddListPress = () => {
+    if (!selectedCategory) {
+      alert('Please select a category first');
+      return;
+    }
+    router.push(`/add-list?category=${encodeURIComponent(selectedCategory)}`);
+  };
+
+  const handleTogglePurchased = (listId: number, itemId: number) => {
+    dispatch(toggleItemPurchased({ listId, itemId }));
   };
 
   return (
@@ -48,14 +45,7 @@ export default function HomeScreen() {
       <Text style={styles.header}>Basketly</Text>
       <Text style={styles.subHeading}>Your Smart Shopping Companion</Text>
 
-      {/* Warning text if no category selected */}
-      {showCategoryWarning && (
-        <Text style={styles.categoryWarning}>
-          Please choose a category first
-        </Text>
-      )}
-
-      {/* Horizontal Categories */}
+      {/* Categories */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -63,7 +53,12 @@ export default function HomeScreen() {
       >
         {categories.map((cat, index) => (
           <TouchableOpacity key={index} onPress={() => handleCategoryPress(cat.name)}>
-            <View style={[styles.card, selectedCategory === cat.name && styles.highlightCard]}>
+            <View
+              style={[
+                styles.card,
+                selectedCategory === cat.name && styles.highlightCard,
+              ]}
+            >
               <Image source={cat.image} style={styles.image} />
               <Text style={styles.text}>{cat.name}</Text>
             </View>
@@ -71,50 +66,58 @@ export default function HomeScreen() {
         ))}
       </ScrollView>
 
-      {/* Shopping List (unchanged) */}
+      {/* Shopping Lists */}
       <ScrollView style={styles.listContainer} contentContainerStyle={{ paddingTop: 16 }}>
-        {shoppingList.map(item => (
-          <TouchableOpacity
-            key={item.id}
-            onPress={() => togglePurchased(item.id)}
-            style={styles.listItem}
-          >
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-              <View>
-                <Text style={[styles.itemText, { textDecorationLine: item.purchased ? 'line-through' : 'none' }]}>
-                  {item.name}
-                </Text>
-                <Text style={styles.categoryText}>Category: {item.category}</Text>
-              </View>
-              <Image
-                source={item.purchased
-                  ? require('../../assets/images/check.png')
-                  : require('../../assets/images/circle.png')}
-                style={styles.checkbox}
-              />
-            </View>
-          </TouchableOpacity>
+        {shoppingLists.map(list => (
+          <View key={list.id} style={{ marginBottom: 16 }}>
+            <Text style={styles.listTitle}>
+              {list.name} ({list.category})
+            </Text>
+            {list.items.map(item => (
+              <TouchableOpacity
+                key={item.id}
+                onPress={() => handleTogglePurchased(list.id, item.id)}
+                style={styles.listItem}
+              >
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    width: '100%',
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.itemText,
+                      { textDecorationLine: item.purchased ? 'line-through' : 'none' },
+                    ]}
+                  >
+                    {item.name} x{item.quantity}
+                  </Text>
+                  <Image
+                    source={
+                      item.purchased
+                        ? require('../../assets/images/check.png')
+                        : require('../../assets/images/circle.png')
+                    }
+                    style={styles.checkbox}
+                  />
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
         ))}
       </ScrollView>
 
       {/* Add List Button */}
-      <Pressable
-  style={styles.addButton}
-  onPress={() => {
-    if (!selectedCategory) {
-      setShowCategoryWarning(true);
-      return;
-    }
-    router.push(`/add-list?category=${encodeURIComponent(selectedCategory)}`);
-  }}
->
-  <Text style={styles.addText}>Add List</Text>
-</Pressable>
-
+      <Pressable style={styles.addButton} onPress={handleAddListPress}>
+        <Text style={styles.addText}>Add List</Text>
+      </Pressable>
     </View>
   );
 }
-
+// St
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -144,13 +147,7 @@ const styles = StyleSheet.create({
   },
   highlightCard: {
     borderWidth: 2,
-    borderColor: '#000000',
-  },
-  categoryWarning: {
-    color: 'black',
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 10,
+    borderColor: '#5085CF',
   },
   subHeading: {
     fontSize: 16,
@@ -202,6 +199,11 @@ const styles = StyleSheet.create({
     height: '48%',
     marginBottom: 20,
   },
+  listTitle: { 
+    fontSize: 18,
+    fontWeight: '600', 
+    marginBottom: 8 
+  },
   listItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -211,7 +213,10 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     borderColor: '#E6E7E7',
     backgroundColor: '#FFFFFF',
-    boxShadow: '0px 0px 2px rgba(5, 6, 15, 0.02)',
+    shadowColor: '#05060F',
+    shadowOpacity: 0.02,
+    shadowOffset: { width: 0, height: 0 },
+    shadowRadius: 2,
   },
   checkbox: {
     width: 24,
