@@ -1,22 +1,17 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  FlatList,
-  TouchableOpacity,
-  Pressable,
-  Alert,
-  Image,
-} from 'react-native';
+import { View, Text, StyleSheet, TextInput, FlatList, TouchableOpacity, Pressable, Alert, Image } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../store';
+import { addList } from '../store/shoppingListSlice';
 
 export default function AddListScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const dispatch = useDispatch();
 
+  // Get category passed from HomeScreen
   const initialCategory =
     Array.isArray(params.category) ? params.category[0] : params.category ?? '';
 
@@ -25,17 +20,17 @@ export default function AddListScreen() {
   const [itemName, setItemName] = useState('');
   const [itemQuantity, setItemQuantity] = useState(1);
   const [items, setItems] = useState<
-    { name: string; quantity: number; id: number; purchased: boolean }[]
+    { id: number; name: string; quantity: number; purchased: boolean }[]
   >([]);
   const [nextId, setNextId] = useState(1);
   const [editingItemId, setEditingItemId] = useState<number | null>(null);
 
   // Add item
   const handleAddItem = () => {
-    if (!itemName) return;
+    if (!itemName.trim()) return;
     setItems(prev => [
       ...prev,
-      { name: itemName, quantity: itemQuantity, id: nextId, purchased: false },
+      { id: nextId, name: itemName.trim(), quantity: itemQuantity, purchased: false },
     ]);
     setNextId(prev => prev + 1);
     setItemName('');
@@ -57,21 +52,26 @@ export default function AddListScreen() {
     setEditingItemId(null);
   };
 
-  const handleEllipsisPress = (id: number) => {
-    setEditingItemId(id === editingItemId ? null : id);
-  };
-
-  // Toggle purchased (checkbox style preview)
+  // Toggle purchased (checkbox)
   const togglePurchased = (id: number) => {
     setItems(prev =>
       prev.map(i => (i.id === id ? { ...i, purchased: !i.purchased } : i))
     );
   };
 
-  // Add List button
+  // Ellipsis menu toggle
+  const handleEllipsisPress = (id: number) => {
+    setEditingItemId(id === editingItemId ? null : id);
+  };
+
+  // Add List
   const handleAddList = () => {
     if (!listName.trim()) {
       Alert.alert('Error', 'Please enter a list name.');
+      return;
+    }
+    if (!category.trim()) {
+      Alert.alert('Error', 'Please choose a category.');
       return;
     }
     if (items.length === 0) {
@@ -79,10 +79,16 @@ export default function AddListScreen() {
       return;
     }
 
-    // Here, dispatch to Redux or save the list
-    console.log('New List Added:', { listName, category, items });
+    // Dispatch to Redux
+    dispatch(
+      addList({
+        name: listName.trim(),
+        category: category.trim(),
+        items,
+      })
+    );
 
-    // Navigate back to Home
+    // Go back to Home
     router.back();
   };
 
@@ -117,9 +123,7 @@ export default function AddListScreen() {
           onChangeText={setCategory}
           style={[styles.input, !category && styles.categoryHighlight]}
         />
-        {!category && (
-          <Text style={styles.categoryWarning}>Please choose a category</Text>
-        )}
+        {!category && <Text style={styles.categoryWarning}>Please choose a category</Text>}
       </View>
 
       {/* Add Item Section */}
@@ -154,9 +158,21 @@ export default function AddListScreen() {
             onPress={() => togglePurchased(item.id)}
             style={styles.listItem}
           >
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                width: '100%',
+              }}
+            >
               <View>
-                <Text style={[styles.itemText, { textDecorationLine: item.purchased ? 'line-through' : 'none' }]}>
+                <Text
+                  style={[
+                    styles.itemText,
+                    { textDecorationLine: item.purchased ? 'line-through' : 'none' },
+                  ]}
+                >
                   {item.name} x{item.quantity}
                 </Text>
               </View>
