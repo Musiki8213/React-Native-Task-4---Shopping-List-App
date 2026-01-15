@@ -6,7 +6,15 @@ import React from 'react';
 export default function RootLayout() {
   return (
     <Provider store={store}>
-      <Stack screenOptions={{ headerShown: false }} />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen
+          name="modal"
+          options={{
+            presentation: 'modal',
+            headerShown: false,
+          }}
+        />
+      </Stack>
     </Provider>
   );
 }
